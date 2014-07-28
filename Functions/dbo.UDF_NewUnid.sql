@@ -1,0 +1,22 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+CREATE FUNCTION [dbo].[UDF_NewUnid]()
+
+returns nvarchar(32)
+
+AS
+
+BEGIN
+
+DECLARE @unid NVARCHAR(32)
+
+SET @unid=CONVERT(NVARCHAR(32),GETDATE(),121)
+
+SELECT @unid=REPLACE(REPLACE(REPLACE(REPLACE(@unid,'-',''),':',''),'.',''),' ','')
+
+RETURN @unid
+
+END
+GO

@@ -1,0 +1,18 @@
+CREATE TABLE [dbo].[REL_SIGNATARIO]
+(
+[IdAsunto] [bigint] NOT NULL,
+[IdDeterminante] [bigint] NOT NULL,
+[IdSignatario] [bigint] NOT NULL,
+[Fecha] [datetime] NULL,
+[IsActive] [bit] NOT NULL,
+[IsModified] [bit] NOT NULL,
+[LastModifiedDate] [bigint] NOT NULL,
+[ServerLastModifiedDate] [bigint] NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[REL_SIGNATARIO] ADD CONSTRAINT [REL_SIGNATARIO_PK] PRIMARY KEY CLUSTERED  ([IdSignatario]) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[REL_SIGNATARIO] ADD CONSTRAINT [GET_ASUNTO_REL_SIGNATARIO_FK1] FOREIGN KEY ([IdAsunto]) REFERENCES [dbo].[GET_ASUNTO] ([IdAsunto])
+GO
+ALTER TABLE [dbo].[REL_SIGNATARIO] ADD CONSTRAINT [CAT_DETERMINANTE_REL_SIGNATARIO_FK1] FOREIGN KEY ([IdDeterminante]) REFERENCES [dbo].[CAT_DETERMINANTE] ([IdDeterminante])
+GO
