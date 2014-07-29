@@ -1,3 +1,4 @@
+
 SET QUOTED_IDENTIFIER ON
 GO
 SET ANSI_NULLS ON
@@ -519,6 +520,69 @@ AS
 			WHERE 1=1			
 				--AND ASUNTO.IdPrioridad=20130611175650143
 				AND ROL.IdRol=@IdRol
+	)
+	SELECT 
+		IdAsunto,
+		PrioridadName,
+		PathImagen,
+		Titulo,
+		Folio,
+		LEFT(Signatarios,LEN(Signatarios)-1) AS Signatarios,
+		LEFT(Destinatarios,LEN(Destinatarios)-1) AS Destinatarios,
+		Respuesta,
+		FechaRecibido,
+		FechaVencimiento
+	FROM Asuntos
+	ORDER BY IdAsunto DESC
+	END
+	
+	IF @TipoAsunto = 'Borrador'
+	BEGIN
+	/*ASUNTOS BORRADOR*/
+	;WITH Asuntos AS
+	(	
+		SELECT DISTINCT		
+			 ASUNTO.IdAsunto,
+			 PRI.PrioridadName,
+			 PRI.PathImagen,
+			 ASUNTO.Titulo,
+			 ASUNTO.Folio,		 
+			 (
+				SELECT DISTINCT det.DeterminanteName + ','
+				from REL_SIGNATARIO as relsig
+					inner join CAT_DETERMINANTE as det
+						on det.IdDeterminante=relsig.IdDeterminante					
+				where 1=1
+					and  relsig.IdAsunto=ASUNTO.IdAsunto
+				for xml path('')
+			 )AS Signatarios,
+			 (
+				SELECT DISTINCT O.JerarquiaName+',' 
+				FROM dbo.REL_DESTINATARIO  RD
+					INNER JOIN dbo.CAT_ORGANIGRAMA O
+						ON O.IdRol = RD.IdRol
+						AND RD.IdTurno=TURNO.IdTurno
+						AND TURNO.IdAsunto=ASUNTO.IdAsunto
+				FOR XML PATH('')
+			)AS Destinatarios,
+			 '' AS Respuesta,
+			 ASUNTO.FechaRecibido,
+			 ASUNTO.FechaVencimiento
+		FROM dbo.GET_ASUNTO ASUNTO
+			INNER JOIN dbo.GET_TURNO TURNO
+				ON TURNO.IdAsunto = ASUNTO.IdAsunto
+					AND ASUNTO.IsActive=1
+					AND asunto.IsBorrador=1													
+			INNER JOIN dbo.APP_ROL ROL 
+				ON ROL.IdRol = TURNO.IdRol				
+					AND TURNO.IsActive=1
+			INNER JOIN dbo.CAT_ORGANIGRAMA ORG
+				ON ORG.IdRol = ROL.IdRol
+			INNER JOIN dbo.CAT_PRIORIDAD PRI
+				ON PRI.IdPrioridad = ASUNTO.IdPrioridad
+			WHERE 1=1							
+				AND ROL.IdRol=10--@IdRol
+			
 	)
 	SELECT 
 		IdAsunto,
